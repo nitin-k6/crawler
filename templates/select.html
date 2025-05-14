@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notion Crawler - Select</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+        }
+        
+        .selection-area {
+            margin: 20px 0;
+        }
+        
+        .selection-area h2 {
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .item-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            background-color: white;
+        }
+        
+        .item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .item:hover {
+            background-color: #f4f8fb;
+        }
+        
+        .item:last-child {
+            border-bottom: none;
+        }
+        
+        .item.selected {
+            background-color: #e1f5fe;
+        }
+        
+        .extract-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .extract-button:hover {
+            background-color: #27ae60;
+        }
+        
+        .extract-button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            display: inline-block;
+            margin-left: 10px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .status.error {
+            background-color: #ffe6e6;
+            color: #c0392b;
+        }
+        
+        .status.success {
+            background-color: #e6ffe6;
+            color: #27ae60;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Notion Crawler</h1>
+        <p>Connected to workspace: <strong>{{ workspace }}</strong></p>
+        
+        <div class="selection-area">
+            <h2>Select Databases</h2>
+            <div id="database-list" class="item-list">
+                <div class="item" style="color: #7f8c8d;">Loading databases...</div>
+            </div>
+        </div>
+        
+        <div class="selection-area">
+            <h2>Select Pages</h2>
+            <div id="page-list" class="item-list">
+                <div class="item" style="color: #7f8c8d;">Loading pages...</div>
+            </div>
+        </div>
+        
+        <form id="extract-form" action="/extract" method="post">
+            <input type="hidden" id="doc-id" name="doc_id" value="">
+            <button type="submit" class="extract-button" disabled>Extract Content</button>
+            <span id="loading" class="loading" style="display: none;">Processing...</span>
+        </form>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        
+        <a href="/" class="back-link">Start Over</a>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let selectedItem = null;
+            const extractForm = document.getElementById('extract-form');
+            const extractButton = extractForm.querySelector('button');
+            const docIdInput = document.getElementById('doc-id');
+            const loadingElem = document.getElementById('loading');
+            const statusElem = document.getElementById('status');
+            
+            // Load databases
+            fetch('/list-databases')
+                .then(response => response.json())
+                .then(databases => {
+                    const databaseList = document.getElementById('database-list');
+                    if (databases.length === 0) {
+                        databaseList.innerHTML = '<div class="item" style="color: #7f8c8d;">No databases found</div>';
+                        return;
+                    }
+                    
+                    databaseList.innerHTML = '';
+                    databases.forEach(db => {
+                        const item = document.createElement('div');
+                        item.className = 'item';
+                        item.textContent = db.title || 'Untitled Database';
+                        item.dataset.id = db.id;
+                        item.dataset.type = 'database';
+                        databaseList.appendChild(item);
+                        
+                        item.addEventListener('click', () => selectItem(item));
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading databases:', error);
+                    document.getElementById('database-list').innerHTML = 
+                        '<div class="item" style="color: #c0392b;">Error loading databases</div>';
+                });
+            
+            // Load pages
+            fetch('/search-pages')
+                .then(response => response.json())
+                .then(pages => {
+                    const pageList = document.getElementById('page-list');
+                    if (pages.length === 0) {
+                        pageList.innerHTML = '<div class="item" style="color: #7f8c8d;">No pages found</div>';
+                        return;
+                    }
+                    
+                    pageList.innerHTML = '';
+                    pages.forEach(page => {
+                        const item = document.createElement('div');
+                        item.className = 'item';
+                        item.textContent = page.title || 'Untitled Page';
+                        item.dataset.id = page.id;
+                        item.dataset.type = 'page';
+                        pageList.appendChild(item);
+                        
+                        item.addEventListener('click', () => selectItem(item));
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading pages:', error);
+                    document.getElementById('page-list').innerHTML = 
+                        '<div class="item" style="color: #c0392b;">Error loading pages</div>';
+                });
+            
+            function selectItem(item) {
+                // Clear previous selection
+                if (selectedItem) {
+                    selectedItem.classList.remove('selected');
+                }
+                
+                // Set new selection
+                item.classList.add('selected');
+                selectedItem = item;
+                
+                // Update form
+                docIdInput.value = item.dataset.id;
+                extractButton.disabled = false;
+                
+                // Hide any previous status
+                statusElem.style.display = 'none';
+            }
+            
+            // Handle form submission
+            extractForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!docIdInput.value) {
+                    return;
+                }
+                
+                // Show loading indicator
+                extractButton.disabled = true;
+                loadingElem.style.display = 'inline-block';
+                
+                // Submit form via AJAX
+                fetch('/extract', {
+                    method: 'POST',
+                    body: new FormData(extractForm),
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server error: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Show success message
+                    statusElem.className = 'status success';
+                    statusElem.textContent = 'Content extracted successfully!';
+                    statusElem.style.display = 'block';
+                    
+                    console.log('Extracted data:', data);
+                    
+                    // You can do something with the extracted data here
+                    
+                    // Reset loading state
+                    loadingElem.style.display = 'none';
+                    extractButton.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error extracting content:', error);
+                    
+                    // Show error message
+                    statusElem.className = 'status error';
+                    statusElem.textContent = 'Error extracting content: ' + error.message;
+                    statusElem.style.display = 'block';
+                    
+                    // Reset loading state
+                    loadingElem.style.display = 'none';
+                    extractButton.disabled = false;
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
