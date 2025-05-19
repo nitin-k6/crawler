@@ -1,0 +1,30 @@
+2025-05-20 02:18:15,947 - INFO - Starting debug crawl comparison for "https://www.apple.com" 
+2025-05-20 02:18:15,948 - INFO - [+] Starting direct script emulation crawl at "https://www.apple.com" 
+2025-05-20 02:18:17,358 - INFO - [i] Queue size: 1, fetched: 0
+2025-05-20 02:18:17,358 - DEBUG - Fetching [0] "https://www.apple.com" 
+2025-05-20 02:18:17,613 - DEBUG - Page user agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/136.0.7103.25 Safari/537.36
+2025-05-20 02:18:17,630 - ERROR - Error fetching "https://www.apple.com" : Error: Page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL
+Call log:
+  - navigating to ""https://www.apple.com" ", waiting until "load"
+
+2025-05-20 02:18:17,799 - INFO - [+] Script emulation crawl finished. Total pages: 0
+2025-05-20 02:18:17,800 - INFO - Script crawl stats: {"total_pages": 0, "crawl_duration": 1.8515164852142334, "total_content_chars": 0, "avg_content_chars_per_page": 0}
+2025-05-20 02:18:17,802 - DEBUG - Attempting to acquire lock 1500444225936 on C:\Users\67nit\OneDrive\Desktop\crawling\venv\Lib\site-packages\tldextract\.suffix_cache\publicsuffix.org-tlds\de84b5ca2167d4c83e38fb162f2e8738.tldextract.json.lock
+2025-05-20 02:18:17,803 - DEBUG - Lock 1500444225936 acquired on C:\Users\67nit\OneDrive\Desktop\crawling\venv\Lib\site-packages\tldextract\.suffix_cache\publicsuffix.org-tlds\de84b5ca2167d4c83e38fb162f2e8738.tldextract.json.lock
+2025-05-20 02:18:17,807 - DEBUG - Attempting to release lock 1500444225936 on C:\Users\67nit\OneDrive\Desktop\crawling\venv\Lib\site-packages\tldextract\.suffix_cache\publicsuffix.org-tlds\de84b5ca2167d4c83e38fb162f2e8738.tldextract.json.lock
+2025-05-20 02:18:17,809 - DEBUG - Lock 1500444225936 released on C:\Users\67nit\OneDrive\Desktop\crawling\venv\Lib\site-packages\tldextract\.suffix_cache\publicsuffix.org-tlds\de84b5ca2167d4c83e38fb162f2e8738.tldextract.json.lock
+2025-05-20 02:18:17,858 - DEBUG - get_domain: "https://www.apple.com"  -> "https.
+2025-05-20 02:18:17,859 - INFO - [+] Starting crawl job dac60028-cb0e-449b-bec7-123484dcc93a at "https://www.apple.com" 
+2025-05-20 02:18:17,859 - DEBUG - get_domain: "https://www.apple.com"  -> "https.
+2025-05-20 02:18:17,859 - DEBUG - get_domain: "https://www.apple.com"  -> "https.
+2025-05-20 02:18:17,860 - INFO - Start domain: "https.
+2025-05-20 02:18:19,149 - INFO - [i] Batch 1: Queue size: 1, fetched: 0
+2025-05-20 02:18:19,149 - INFO - Processing batch of 1 URLs
+2025-05-20 02:18:19,150 - DEBUG - Fetching [0] "https://www.apple.com" 
+2025-05-20 02:18:19,358 - DEBUG - Page user agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/136.0.7103.25 Safari/537.36
+2025-05-20 02:18:19,379 - ERROR - Error fetching "https://www.apple.com" : Error: Page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL
+Call log:
+  - navigating to ""https://www.apple.com" ", waiting until "load"
+
+2025-05-20 02:18:19,380 - INFO - Batch complete: 0 pages fetched, 0 new URLs added to queue
+2025-05-20 02:18:19,599 - INFO - [+] Crawl finished. Total pages: 0
